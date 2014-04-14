@@ -59,6 +59,34 @@ class: center, middle, inverse
 
 ### by [Daniel Stankiewicz](https://github.com/danielstankiewicz)
 
+???
+http://openjdk.java.net/projects/type­annotations/
+
+http://docs.oracle.com/javase/specs/
+
+http://docs.oracle.com/javase/specs/jls/se8/jls8­diffs.pdf
+
+http://docs.oracle.com/javase/specs/jls/se8/html/jls-9.html#jls-9.6.4.1
+
+http://docs.oracle.com/javase/specs/jls/se8/html/jls-4.html#jls-4.11
+
+1. przedstawienie
+2. nowy ficzer – Type Annotations – co to takiego? Dlaczego mnie zaciekawiło?
+3. JSR­308 najbardziej innowacyjny JSR roku... 2007
+4. wcześniej adnotacje występowały tylko w kontekście deklaracji
+    * ElementType.PACKAGE
+    * ElementType.TYPE
+    * ElementType.FIELD
+    * ElementType.CONSTRUCTOR
+    * ElementType.METHOD
+    * ElementType.PARAMETER
+    * ElementType.LOCAL_VARIABLE
+5. do tej pory wszystkie poza LOCAL_VARIABLE mogły być odczytywane w runtime, do deklaracji zmiennej lokalnej nie można się było
+dostać przez refleksję, była od początku projektowana jako służąca do warningów kompilatora
+6. do kontekstu deklaracji został dodany typ ElementType.TYPE_PARAMETER, czyli adnotacja przy deklaracji typu generycznego w klasie lub metodzie
+7. pojawił się nowy kontekst, typu, czyli wszystkie miejsca, w których typy są użyte w deklaracjach i wyrażeniach, odpowiada mu ElementType.TYPE_USE. Dodatkowo
+TYPE_USE zawiera w sobie elementy z kontekstu deklaracji: deklaracje typu i typu generycznego.
+8.  Gdzie można użyć adnotacji TYPE_USE? Gdzie nie można użyć?
 ---
 layout: true
 
