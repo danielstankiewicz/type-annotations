@@ -5,13 +5,14 @@
     <title>Java 8: Type Annotations</title>
     <script src="http://gnab.github.io/remark/downloads/remark-0.6.4.min.js" type="text/javascript"> </script>
     <style type="text/css">
-      @import url(http://fonts.googleapis.com/css?family=Droid+Serif);
+      @import url(http://fonts.googleapis.com/css?family=Signika:300);
       @import url(http://fonts.googleapis.com/css?family=Source+Code+Pro);
       @import url(http://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
 
       body { 
-        font-family: 'Droid Serif';
-        font-size: 12pt;
+        font-family: 'Signika';
+        font-weight: 300;
+        font-size: 18pt;
       }
       h1, h2, h3 {
         font-family: 'Yanone Kaffeesatz';
@@ -19,18 +20,26 @@
         margin-bottom: 0;
         margin-top: 10px;
       }
-      h1 { font-size: 3.2em; }
-      h2 { font-size: 3em; }
-      h3 { font-size: 1.6em; }
+      h1 { font-size: 2.5em; }
+      h2 { font-size: 2em; }
+      h3 { font-size: 1.5em; }
 
       .inverse {
         background: #272822;
-        color: #777872;
+        color: #a5a5a5;
         text-shadow: 0 0 20px #333;
       }
-      .inverse h1, .inverse h2 {
+      .inverse h1 {
         color: #f3f3f3;
+        line-height: 1.5em;
+      }
+      .inverse h2, .inverse h3 {
+        color: #a5a5a5;
         line-height: 0.8em;
+      }
+      .inverse em {
+        color: #f3f3f3;
+        font-style: normal;
       }
       pre {
         border-left: 0.4em solid #d7d7d7;
@@ -38,6 +47,7 @@
       }
       code {
         font-family: 'Source Code Pro';
+        font-size: 0.7em;
       }
       a {
         color: #F92672;
@@ -50,6 +60,16 @@
       .pushdown {
         margin-top: 12em;
       }
+      .blue {
+        color: #4A6BD9;
+      }
+      .red {
+        color: #EB135B;
+      }
+      .green {
+        color: #1FAB3B;
+      }
+
     </style>
   </head>
   <body>
@@ -57,10 +77,11 @@
 class: center, middle, inverse
 # Java 8: Type Annotations
 
-### by [Daniel Stankiewicz](https://github.com/danielstankiewicz)
+## by [Daniel Stankiewicz](https://github.com/danielstankiewicz)
 
 ???
-http://openjdk.java.net/projects/type­annotations/
+
+http://openjdk.java.net/projects/type-annotations/
 
 http://docs.oracle.com/javase/specs/
 
@@ -70,8 +91,6 @@ http://docs.oracle.com/javase/specs/jls/se8/html/jls-9.html#jls-9.6.4.1
 
 http://docs.oracle.com/javase/specs/jls/se8/html/jls-4.html#jls-4.11
 
-1. przedstawienie
-2. nowy ficzer – Type Annotations – co to takiego? Dlaczego mnie zaciekawiło?
 3. JSR­308 najbardziej innowacyjny JSR roku... 2007
 4. wcześniej adnotacje występowały tylko w kontekście deklaracji
     * ElementType.PACKAGE
@@ -87,26 +106,119 @@ dostać przez refleksję, była od początku projektowana jako służąca do war
 7. pojawił się nowy kontekst, typu, czyli wszystkie miejsca, w których typy są użyte w deklaracjach i wyrażeniach, odpowiada mu ElementType.TYPE_USE. Dodatkowo
 TYPE_USE zawiera w sobie elementy z kontekstu deklaracji: deklaracje typu i typu generycznego.
 8.  Gdzie można użyć adnotacji TYPE_USE? Gdzie nie można użyć?
+
+---
+class: center, middle, inverse
+# about.me
+### (mostly) Java Developer since 2005
+### currently [@AssecoPolandSA](http://asseco.com/pl/home-en/)
+### *inspired by Java 8*
+### privately husband, dad, guitarist
+
+---
+class: center, middle, inverse
+# Java 8 New Features
+## and Type Annotations amongst them
+
 ---
 layout: true
 
-### Java 8: Type Annotations
+### Java 8 New Features
 
 ---
-# Hello world
+## Annotations on Java Types (JSR-308)
+Browsing [JDK 8 Features](http://openjdk.java.net/projects/jdk8/features) in `core/lang` group:
 
-This is a `HelloWorld` class slide.
+* 101 Generalized Target-Type Inference
+* .blue[**104 Annotations on Java Types**]
+* 105 DocTree API
+* 106 Add Javadoc to `javax.tools`
+* 117 Remove the Annotation-Processing Tool (apt)
+* 118 Access to Parameter Names at Runtime
+* 120 Repeating Annotations
+* ...
 
-```    
-@NotNull
-public class HelloWorld<@NotNull T extends Number> {
-   public static void main(String... args) {
-        @NotNull String s;
-    }
+A brief look at [Open JDK Type Annotations](http://openjdk.java.net/projects/type-annotations/) project:
+
+*JSR 308, Annotations on Java Types lays the foundations for stronger typing in Java by extending
+the language to .blue[**allow annotations**] on essentially .blue[**any use of a type**].*
+
+---
+## First Naive Test
+An even more brief look at `ElementType.TYPE_USE` [javadoc](http://docs.oracle.com/javase/8/docs/api/java/lang/annotation/ElementType.html#TYPE_USE)
+and then a first naive test:
+```
+public List<@TypeUse String> typeUse() {
+    @TypeUse String s = "abc";
+    List<@TypeUse String> list = new ArrayList<>();
+    list.add(s);
+    list.add("def");
+    boolean isTypeUse = "def" instanceof @TypeUse String;
+    System.out.println("@TypeUse String: " + isTypeUse);
+    return list;
 }
 ```
+**Wow! No compilation errors!!!**
 
 ---
+layout: false
+class: center, middle, inverse
+# A deeper dive
+## into more organized knowledge
+
+---
+layout: true
+
+### A deeper dive
+
+---
+## Declaration vs type context
+
+Before Java 8 annotations could be used only in *declaration contexts*, that is in declarations of types, fields, methods, constructors etc.
+All the declarations contexts except for `ElementType.LOCAL_VARIABLE` could be accessed by reflection.
+
+Java 8 extends *declaration context* to the use of **generic type parameter declarations**.
+
+Additionally it adds *type context*, where annotations apply to **types used in declarations and expressions**.
+
+---
+## Declaration context
+* ElementType.PACKAGE
+* ElementType.TYPE
+* ElementType.ANNOTATION_TYPE
+* ElementType.FIELD
+* ElementType.CONSTRUCTOR
+* ElementType.METHOD
+* ElementType.PARAMETER
+* .red[ElementType.LOCAL_VARIABLE]
+
+--
+* .green[ElementType.TYPE_PARAMETER]
+
+--
+
+##.green[Type context]
+* .green[ElementType.TYPE_USE]
+
+---
+## Declaration context
+* ElementType.PACKAGE
+* .blue[ElementType.TYPE]
+* .blue[ElementType.ANNOTATION_TYPE]
+* ElementType.FIELD
+* ElementType.CONSTRUCTOR
+* ElementType.METHOD
+* ElementType.PARAMETER
+* ElementType.LOCAL_VARIABLE
+* .blue[ElementType.TYPE_PARAMETER]
+
+## Type context
+* .blue[ElementType.TYPE_USE]
+
+`ElementType.TYPE_USE` for convenience .blue[includes elements of declaration context]: types, annotation types and type parameters.
+
+---
+
 layout: false
 class: center, middle, inverse
 
@@ -119,7 +231,7 @@ Slideshow created with [remark](http://gnab.github.com/remark).
       var slideshow = remark.create({
             ratio: '4:3',
             highlightLanguage: 'java', 
-            highlightStyle: 'github'
+            highlightStyle: 'googlecode'
       });
     </script>
   </body>
