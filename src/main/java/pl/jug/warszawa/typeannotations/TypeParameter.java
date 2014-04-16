@@ -8,4 +8,5 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE_PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface TypeParameter {
+    String value() default "";
 }
