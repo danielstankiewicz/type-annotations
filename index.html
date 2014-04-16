@@ -27,7 +27,6 @@
       .inverse {
         background: #272822;
         color: #a5a5a5;
-        text-shadow: 0 0 20px #333;
       }
       .inverse h1 {
         color: #f3f3f3;
@@ -42,12 +41,12 @@
         font-style: normal;
       }
       pre {
-        border-left: 0.4em solid #d7d7d7;
-        padding: 1em !important;
+        border-left: 0.2em solid #d7d7d7;
+        padding: 0.3em !important;
       }
       code {
         font-family: 'Source Code Pro';
-        font-size: 0.7em;
+        font-size: 0.72em;
       }
       a {
         color: #F92672;
@@ -64,7 +63,7 @@
         color: #4A6BD9;
       }
       .red {
-        color: #EB135B;
+        color: #C90000;
       }
       .green {
         color: #1FAB3B;
@@ -179,7 +178,7 @@ All the declarations contexts except for `ElementType.LOCAL_VARIABLE` could be a
 
 Java 8 extends *declaration context* to the use of **generic type parameter declarations**.
 
-Additionally it adds *type context*, where annotations apply to **types used in declarations and expressions**.
+Additionally it introduces *type context*, where annotations apply to **types used in declarations and expressions**.
 
 ---
 ## Declaration context
@@ -192,7 +191,16 @@ Additionally it adds *type context*, where annotations apply to **types used in 
 * ElementType.PARAMETER
 * .red[ElementType.LOCAL_VARIABLE]
 
---
+---
+## Declaration context
+* ElementType.PACKAGE
+* ElementType.TYPE
+* ElementType.ANNOTATION_TYPE
+* ElementType.FIELD
+* ElementType.CONSTRUCTOR
+* ElementType.METHOD
+* ElementType.PARAMETER
+* ElementType.LOCAL_VARIABLE
 * .green[ElementType.TYPE_PARAMETER]
 
 --
@@ -217,6 +225,56 @@ Additionally it adds *type context*, where annotations apply to **types used in 
 
 `ElementType.TYPE_USE` for convenience .blue[includes elements of declaration context]: types, annotation types and type parameters.
 
+---
+## ElementType.TYPE_PARAMETER usages
+
+Type parameter of generic class (or interface)
+```
+public class ExampleGeneric<@TypeParameter("class") V extends Number> {
+```
+Type parameter of generic constructor
+```
+public <@TypeParameter("constructor") A> GenericClass(V value, A another) {
+```
+Type parameter of generic method
+```
+public <@TypeParameter("method") K> Map<K, V> getSingletonMap(K key) {
+```
+
+---
+## ElementType.TYPE_PARAMETER reflection
+
+From Java 8 `java.lang.reflect.TypeVariable` interface extends `java.lang.reflect.AnnotatedElement` interface. Thus we can
+access type parameter annotations like in the following code:
+
+```
+TypeVariable<Class<GenericClass>>[] typeParameters =
+    GenericClass.class.getTypeParameters();
+TypeParameter annotation =
+        typeParameters[0].getAnnotation(TypeParameter.class);
+```
+
+---
+## ElementType.TYPE_USE usages
+### Declaration context
+```
+@TypeUse("class")
+public class DeclarationContext<@TypeUse("type parameter") V extends Number> {
+    public <@TypeUse("type parameter") K> Map<K, V> getSingletonMap(K key) {
+        return Collections.singletonMap(key, this.value);
+    }
+
+    @TypeUse("annotation")
+    public @interface AnnotationExample {}
+
+    @TypeUse("interface")
+    public interface InterfaceExample {}
+
+    @TypeUse("enum")
+    public enum EnumExample {}
+}
+```
+Usages of `ElementType.TYPE_USE` in declaration contexts can be easily accessed by reflection.
 ---
 
 layout: false
