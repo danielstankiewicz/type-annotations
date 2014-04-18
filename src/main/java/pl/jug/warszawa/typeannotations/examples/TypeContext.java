@@ -4,14 +4,41 @@ import pl.jug.warszawa.typeannotations.TypeUse;
 
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 // 1. A type in the extends or implements clause of a class declaration
 public class TypeContext implements @TypeUse Serializable {
+
+    public TypeContext() {
+        // 11. A type in the explicit type argument list to an explicit constructor invocation statement or class instance creation expression or method invocation expression
+        <@TypeUse Long>this(0l);
+        new <@TypeUse String> GenericClass<@TypeUse Long>(123l, "abc")
+                .<@TypeUse Integer> getSingletonMap(123);
+
+        // 12. In an unqualified class instance creation expression, as the class type to be instantiated or as the direct superclass or direct superinterface of an anonymous class to be instantiated
+        new @TypeUse Thread(new @TypeUse Runnable() {
+            @Override
+            public void run() {}
+        });
+
+        // 13. The element type in an array creation expression
+        Integer[] array = new Integer @TypeUse[] {};
+
+        // 14 The type in the cast operator of a cast expression
+        String s = (@TypeUse String) "abc";
+
+        // 15. The type that follows the instanceof relational operator
+        boolean isInstance = s instanceof @TypeUse String;
+
+        // 16. In a method reference expression, as the reference type to search for a member method or as the class type or array type to construct
+
+        List<Integer> list = new ArrayList<>();
+        List<GenericClass<Number>> collect = list.stream().map(@TypeUse GenericClass::new).collect(Collectors.toList());
+    }
+
+    public <N extends Number> TypeContext(N number) {
+    }
 
     // 2. A type in the extends clause of an interface declaration
     public interface InterfaceExample extends @TypeUse Runnable {
@@ -66,7 +93,5 @@ public class TypeContext implements @TypeUse Serializable {
         catch (@TypeUse NumberFormatException e) {
         }
     }
-
-
 
 }
