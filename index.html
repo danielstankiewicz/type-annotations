@@ -337,7 +337,68 @@ catch (@TypeUse NumberFormatException e)
 ```
 
 ---
+## ElementType.TYPE_USE usages
+### .red[Type context in declarations != Declaration context]
 
+Note that use of annotation in of `ElementType.TYPE_USE` target in declarations of a field, method or
+constructor return type, formal parameter of a method and a local variable may look like use of
+annotations of declaration context: `FIELD`, `METHOD`, `CONSTRUCTOR`, `PARAMETER` and `LOCAL_VARIABLE` respectively.
+
+.red[Don't be tricked!] These are not declaration context usages and can't be accessed by reflection. For example:
+```
+TypeContext.class.getDeclaredField("value")
+        .getDeclaredAnnotation(TypeUse.class)
+```
+returns `null` in case field is declared as `private @TypeUse String value;`
+---
+## ElementType.TYPE_USE usages
+### Type context in expressions
+
+A type in the explicit type argument list to an explicit constructor invocation statement or class instance creation expression or method invocation expression
+```
+<@TypeUse Long>this(0l);
+new <@TypeUse String> GenericClass<@TypeUse Long>(123l, "abc")
+        .<@TypeUse Integer> getSingletonMap(123);
+
+```
+In an unqualified class instance creation expression, as the class type to be instantiated or as the direct superclass or direct superinterface of an anonymous class to be instantiated
+```
+new @TypeUse Thread(new @TypeUse Runnable() {
+    @Override
+    public void run() {}
+});
+
+```
+---
+## ElementType.TYPE_USE usages
+### Type context in expressions
+
+The element type in an array creation expression
+```
+Integer[] array = new Integer @TypeUse[] {};
+```
+The type in the cast operator of a cast expression
+```
+String s = (@TypeUse String) "abc";
+```
+The type that follows the instanceof relational operator
+```
+boolean isInstance = s instanceof @TypeUse String;
+```
+---
+## ElementType.TYPE_USE usages
+### Type context in expressions
+
+In a method reference expression, as the reference type to search for a member method or as the class type or array type to construct
+```
+list.stream().map(@TypeUse GenericClass::new)
+```
+
+The element type of an array type in any of the above contexts
+
+A non-wildcard type argument, or a bound of a wildcard type argument, of a parameterized type in any of the above contexts
+
+---
 layout: false
 class: center, middle, inverse
 
