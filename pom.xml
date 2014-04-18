@@ -44,24 +44,24 @@
                 </configuration>
             </plugin>
 
-            <plugin>
-                <groupId>org.checkerframework</groupId>
-                <artifactId>checkerframework-maven-plugin</artifactId>
-                <version>${checker-framework-version}</version>
-                <executions>
-                    <execution>
-                        <phase>process-classes</phase>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <processors>
-                        <processor>org.checkerframework.checker.tainting.TaintingChecker</processor>
-                    </processors>
-                </configuration>
-            </plugin>
+            <!--<plugin>-->
+                <!--<groupId>org.checkerframework</groupId>-->
+                <!--<artifactId>checkerframework-maven-plugin</artifactId>-->
+                <!--<version>${checker-framework-version}</version>-->
+                <!--<executions>-->
+                    <!--<execution>-->
+                        <!--<phase>process-classes</phase>-->
+                        <!--<goals>-->
+                            <!--<goal>check</goal>-->
+                        <!--</goals>-->
+                    <!--</execution>-->
+                <!--</executions>-->
+                <!--<configuration>-->
+                    <!--<processors>-->
+                        <!--<processor>org.checkerframework.checker.tainting.TaintingChecker</processor>-->
+                    <!--</processors>-->
+                <!--</configuration>-->
+            <!--</plugin>-->
 
         </plugins>
     </build>
