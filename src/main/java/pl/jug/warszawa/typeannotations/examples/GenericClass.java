@@ -6,7 +6,8 @@ import java.util.Collections;
 import java.util.Map;
 
 public class GenericClass<@TypeParameter("class") V extends Number> {
-    V value;
+    public static final String TITLE = "title";
+    protected V value;
 
     public GenericClass(V value) {
         this.value = value;
