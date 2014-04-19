@@ -1,19 +1,20 @@
 package pl.jug.warszawa.typeannotations.examples;
 
 import org.junit.Test;
+import pl.jug.warszawa.typeannotations.Field;
 import pl.jug.warszawa.typeannotations.TypeUse;
-
-import java.lang.reflect.Field;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 public class TypeContextTest {
     @Test
-    public void testTypeUseNotFieldAnnotation() throws NoSuchFieldException {
-        Field field = TypeContext.class.getDeclaredField("value");
+    public void testTypeUseOnFieldVsDeclarationContext() throws NoSuchFieldException {
+        java.lang.reflect.Field field = TypeContext.class.getDeclaredField("value");
         assertNotNull(field);
-        TypeUse annotation = field.getDeclaredAnnotation(TypeUse.class);
-        assertNull(annotation);
+        Field fieldAnnotation = field.getDeclaredAnnotation(Field.class);
+        assertNotNull(fieldAnnotation);
+        TypeUse typeUseAnnotation = field.getDeclaredAnnotation(TypeUse.class);
+        assertNull(typeUseAnnotation);
     }
 }

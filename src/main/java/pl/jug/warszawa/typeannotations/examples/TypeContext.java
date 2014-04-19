@@ -1,5 +1,6 @@
 package pl.jug.warszawa.typeannotations.examples;
 
+import pl.jug.warszawa.typeannotations.Field;
 import pl.jug.warszawa.typeannotations.TypeUse;
 
 import java.io.Serializable;
@@ -31,10 +32,11 @@ public class TypeContext implements @TypeUse Serializable {
         // 15. The type that follows the instanceof relational operator
         boolean isInstance = s instanceof @TypeUse String;
 
-        // 16. In a method reference expression, as the reference type to search for a member method or as the class type or array type to construct
-
         List<Integer> list = new ArrayList<>();
-        List<GenericClass<Number>> collect = list.stream().map(@TypeUse GenericClass::new).collect(Collectors.toList());
+        List<GenericClass<Integer>> collect = list.stream()
+                // 16. In a method reference expression, as the reference type to search for a member method or as the class type or array type to construct
+                .<GenericClass<Integer>> map(@TypeUse GenericClass::new)
+                .collect(Collectors.<GenericClass<Integer>>toList());
     }
 
     public <N extends Number> TypeContext(N number) {
@@ -59,7 +61,7 @@ public class TypeContext implements @TypeUse Serializable {
     }
 
     // 6. The type in a field declaration of a class or interface (including an enum constant)
-    private @TypeUse String value;
+    private @Field @TypeUse String value;
     private enum Status {@TypeUse OK, @TypeUse ERROR}
 
     // 7. The type in a formal parameter declaration of a method, constructor or lambda expression
