@@ -391,13 +391,51 @@ boolean isInstance = s instanceof @TypeUse String;
 
 In a method reference expression, as the reference type to search for a member method or as the class type or array type to construct
 ```
-list.stream().map(@TypeUse GenericClass::new)
+@TypeUse GenericClass::new
+List<@TypeUse String>::size
+Arrays::<@TypeUse Integer> sort
 ```
 
-The element type of an array type in any of the above contexts
+The element type of an array type
+```
+@TypeUse int[] a;    // annotates the primitive type int
+int @TypeUse[] b;    // annotates the array type int[]
+int @TypeUse[][] c;  // annotates the array type int[][]
+int [] @TypeUse[] d; // annotates the array type int[] as component
+                     // of array int[][]
+```
 
-A non-wildcard type argument, or a bound of a wildcard type argument, of a parameterized type in any of the above contexts
+---
+## ElementType.TYPE_USE usages
+### Type context in expressions
 
+A non-wildcard type argument, or a bound of a wildcard type argument, of a parameterized type
+```
+List<@TypeUse Integer> integers;
+Set<? extends @TypeUse Number> set;
+Collection<? super @TypeUse Number> collection = new ArrayList<>();
+```
+---
+## .red[Quasi ElementType.TYPE_USE usages]
+
+.red[Warning! The following are not type uses and such annotations are not allowed here]
+
+```
+// Annotation uses
+@/* quasi @TypeUse */Deprecated String s;
+
+// Class literal
+Class<GenericClass> clazz = /* quasi @TypeUse */GenericClass.class;
+
+// Import syntax
+import java.io./* quasi @TypeUse */Serializable;
+
+// Static member access
+String title = /* quasi @TypeUse */ GenericClass.TITLE;
+
+// Scoping (e.g. inner class)
+String v = /* quasi @TypeUse */TypeContext.this.getValue();
+```
 ---
 layout: false
 class: center, middle, inverse
