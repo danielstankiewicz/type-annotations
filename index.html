@@ -59,6 +59,14 @@
       .pushdown {
         margin-top: 12em;
       }
+      .pull-left {
+        float: left;
+        width: 47%;
+      }
+      .pull-right {
+        float: right;
+        width: 47%;
+      }
       .blue {
         color: #4A6BD9;
       }
@@ -162,12 +170,12 @@ public List<@TypeUse String> typeUse() {
 ---
 layout: false
 class: center, middle, inverse
-# A deeper dive
-## into more organized knowledge
+# A Deeper Dive into Specification
+## or a piece of more organized knowledge
 
 ---
 layout: true
-### A deeper dive
+### A Deeper Dive into Specification
 
 ---
 ## Declaration vs type context
@@ -340,7 +348,7 @@ catch (@TypeUse NumberFormatException e)
 ## ElementType.TYPE_USE usages
 ### .red[Type context in declarations != Declaration context]
 
-Note that use of annotation in of `ElementType.TYPE_USE` target in declarations of a field, method or
+Note that use of annotation of `ElementType.TYPE_USE` target in declarations of a field, method or
 constructor return type, formal parameter of a method and a local variable may look like use of
 annotations of declaration context: `FIELD`, `METHOD`, `CONSTRUCTOR`, `PARAMETER` and `LOCAL_VARIABLE` respectively.
 
@@ -381,7 +389,7 @@ The type in the cast operator of a cast expression
 ```
 String s = (@TypeUse String) "abc";
 ```
-The type that follows the instanceof relational operator
+The type that follows the `instanceof` relational operator
 ```
 boolean isInstance = s instanceof @TypeUse String;
 ```
@@ -436,6 +444,77 @@ String title = /* quasi @TypeUse */ GenericClass.TITLE;
 // Scoping (e.g. inner class)
 String v = /* quasi @TypeUse */TypeContext.this.getValue();
 ```
+
+---
+layout: false
+class: center, middle, inverse
+# The Checker Framework
+## or who is the main culprit?
+
+---
+layout: true
+### The Checker Framework
+
+---
+## A piece of history
+
+* Annotations on Java Types (JSR-308) won the Most Innovative Java SE/EE JSR of the Year award in... 2007 :)
+* Rationale for this JSR was to allow building tools for more thorough source code analysis
+* [The Checker Framework](http://types.cs.washington.edu/checker-framework/), an extendable set of compiler plugins that
+  find bugs or verify their absence, was naturally the first tool to use JSR-308 specification
+* They didn't waste their time for those 7 years and the framework with a bunch of tools is already up and running:
+    * **Type annotations compiler** - replacing `javac`, processing also annotations written in comments: `/* @TypeUse */`
+    * **Inference tools** - automatically adding annotations to your code
+    * **Annotations File Utilities** - to process `.java` and `.class` files, write annotations in a separate file etc.
+* Better late than never - .red[type annotations in Java 8] in 2014 :)
+
+---
+## What we have out of the box?
+.pull-left[
+* Nullness Checker
+* Initialization Checker
+* Map Key Checker
+* Interning Checker
+* Lock Checker
+* Fake Enum Checker
+* Tainting Checker
+* Regex Checker
+]
+.pull-right[
+* Format String Checker
+* Property File Checker
+* Internationalization Checker
+* Signature String Checker
+* Units Checker
+* Linear Checker
+* Mutation Checkers
+* Subtyping Checker
+]
+
+Let's prevent an SQL-injection by using **Tainting Checker**!
+
+???
+
+1. Nullness Checker - null pointer errors
+1. Initialization Checker - czy wszystkie pola ustawione w konstruktorze
+1. Map Key Checker - jakie wartosci sa kluczami w mapach
+1. Interning Checker - bledy uzycia porownania referencji zamiast equals
+1. Lock Checker - bledy wspolbieznosci i blokowania
+1. Fake Enum Checker - stale string int jako enumy
+1. Tainting Checker - bledy bezpieczenstwa, sql injection
+1. Regex Checker - prawidlowe wyrazenia regularne
+1. Format String Checker - prawidlowe stringi formatujace
+1. Property File Checker - prawidlowe klucze plikow properties
+1. Internationalization Checker - prawidlowa internacjonalizacja
+1. Signature String Checker - Class.forName, odpowiednie uzycie nazw klas
+1. Units Checker - uzycie odpowiednich jednostek (np sekundy a milisekundy)
+1. Linear Checker - zapobieganie re-uzywaniu referencji
+1. Mutation Checkers - niepozadane efekty uboczne
+1. Subtyping Checker - kwalifikatory typu
+
+---
+## Tainting Checker
+
 ---
 layout: false
 class: center, middle, inverse
