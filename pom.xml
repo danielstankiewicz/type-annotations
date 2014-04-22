@@ -60,6 +60,7 @@
                     <processors>
                         <processor>org.checkerframework.checker.tainting.TaintingChecker</processor>
                     </processors>
+                    <failOnError>false</failOnError>
                     <excludes>
                         <!--exclude Java 8 specific code, since Checker Framework does not handle such code properly yet-->
                         <exclude>pl/jug/warszawa/typeannotations/examples/**</exclude>
