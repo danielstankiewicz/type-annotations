@@ -125,6 +125,15 @@ A brief look at [Open JDK Type Annotations](http://openjdk.java.net/projects/typ
 *JSR 308, Annotations on Java Types lays the foundations for stronger typing in Java by extending
 the language to .blue[**allow annotations**] on essentially .blue[**any use of a type**].*
 
+???
+Gdy przegladalem liste ficzerow Java 8, zwrocilem uwage na wpis Adnotacje na typach Java.
+
+Adnotacje, odkad pojawily sie w Javie 5, byly jednym z moich ulubionych narzedzi,
+wiec pomyslalem, ze to cos dla mnie.
+
+Szybki rzut oka na projekt Open JDK Type Annotations - JSR 308 to rozszerzenie jezyka
+o mozliwosc adnotowania dowolnego uzycia typu.
+
 ---
 ## First Naive Test
 An even more brief look at `ElementType.TYPE_USE` [javadoc](http://docs.oracle.com/javase/8/docs/api/java/lang/annotation/ElementType.html#TYPE_USE)
@@ -142,11 +151,18 @@ public List<@TypeUse String> typeUse() {
 ```
 **Wow! No compilation errors!!!**
 
+???
+
+Pierwszy naiwny test, wow, zadnych bledow kompilacji. Swoja droga, co zawiera zmienna isTypeUse? Oczywiscie true.
 ---
 layout: false
 class: center, middle, inverse
 # A Deeper Dive into Specification
 ## or a piece of more organized knowledge
+
+???
+
+No dobrze, na razie niewiele z tego wynika. Pora na zaglebienie sie w specyfikacje
 
 ---
 layout: true
@@ -162,8 +178,15 @@ Java 8 extends *declaration context* to the use of **generic type parameter decl
 
 Additionally it introduces *type context*, where annotations apply to **types used in declarations and expressions**.
 
+???
+Przed Java 8 adnotacje mogly byc uzywane tylko w kontekscie deklaracji, czyli w deklaracjach typow, pol, metod, konstruktorow i tak dalej.
+
+Java 8 rozszerza kontekst deklaracji o generyki.
+
+Dodatkowo wprowadza pojecie kontekstu typu, gdzie adnotuje sie typy uzyte w deklaracjach i wyrazeniach.
+
 ---
-## Declaration context
+## Declaration context @Target
 * ElementType.PACKAGE
 * ElementType.TYPE
 * ElementType.ANNOTATION_TYPE
@@ -173,8 +196,13 @@ Additionally it introduces *type context*, where annotations apply to **types us
 * ElementType.PARAMETER
 * .red[ElementType.LOCAL_VARIABLE]
 
+???
+Kontekst deklaracji zawieral do tej pory deklaracje: pakietu, typu, adnotacji, pola, konstruktora, metody, parametru i zmiennej lokalnej.
+
+Zmienna lokalna na czerwono, bo to byl jedyny typ, gdzie do adnotacji nie mozna bylo sie dostac przez refleksje.
+
 ---
-## Declaration context
+## Declaration context @Target
 * ElementType.PACKAGE
 * ElementType.TYPE
 * ElementType.ANNOTATION_TYPE
@@ -185,13 +213,19 @@ Additionally it introduces *type context*, where annotations apply to **types us
 * ElementType.LOCAL_VARIABLE
 * .green[ElementType.TYPE_PARAMETER]
 
+???
+Kontekst deklaracji zostaje w Javie 8 rozszerzony o deklaracje typu parametryzowanego.
+
 --
 
-##.green[Type context]
+##.green[Type context @Target]
 * .green[ElementType.TYPE_USE]
 
+???
+Pojawia sie nowy kontekst typu, oznaczany przez @Target ElementType.TYPE_USE
+
 ---
-## Declaration context
+## Declaration context @Target
 * ElementType.PACKAGE
 * .blue[ElementType.TYPE]
 * .blue[ElementType.ANNOTATION_TYPE]
@@ -202,10 +236,14 @@ Additionally it introduces *type context*, where annotations apply to **types us
 * ElementType.LOCAL_VARIABLE
 * .blue[ElementType.TYPE_PARAMETER]
 
-## Type context
+## Type context @Target
 * .blue[ElementType.TYPE_USE]
 
 `ElementType.TYPE_USE` for convenience .blue[includes elements of declaration context]: types, annotation types and type parameters.
+
+???
+
+Dla wygody TYPE_USE zawiera w sobie takze elementy z kontekstu deklaracji: deklaracje typow (takze adnotacji) oraz parametrow typu (generykow).
 
 ---
 ## ElementType.TYPE_PARAMETER usages
@@ -223,6 +261,10 @@ Type parameter of generic method
 public <@TypeParameter K> Map<K, V> getSingletonMap(K key)
 ```
 
+???
+
+Uzycia TYPE_PARAMETER to deklaracje parametru typu w klasie (czy tez interfejsie), konstruktorze lub metodzie
+
 ---
 ## ElementType.TYPE_PARAMETER reflection
 
@@ -235,6 +277,10 @@ TypeVariable<Class<GenericClass>>[] typeParameters =
 TypeParameter annotation =
         typeParameters[0].getAnnotation(TypeParameter.class);
 ```
+
+???
+Do adnotacji o typie TYPE_PARAMETER mozna sie dostawac przez refleksje, tak jak do pozostalych z kontekstu deklaracji,
+poniewaz TypeVariable od Javy 8 rozszerza AnnotatedElement
 
 ---
 ## ElementType.TYPE_USE usages
@@ -252,6 +298,11 @@ public class DeclarationContext
 }
 ```
 Usages of `ElementType.TYPE_USE` in declaration contexts can be easily accessed by reflection.
+
+???
+Adnotacja typu TYPE_USE moze byc uzywana w kontekscie deklaracji: klasy, parametru typu, adnotacji, interfejsu, enuma.
+
+Wtedy mozemy sie do niego dostawac przez refleksje, bo jest to tylko taki skrot, dla wygody, do targetu TYPE czy TYPE_PARAMETER.
 ---
 ## ElementType.TYPE_USE usages
 ### Type context in declarations
@@ -268,6 +319,15 @@ Return type of a method
 ```
 public @TypeUse String getValue()
 ```
+???
+Rzeczywiste uzycia TYPE_USE w kontekscie typu dziela sie na uzycia typu w deklaracjach i wyrazeniach.
+
+Uzycia w deklaracjach to na przyklad:
+
+w deklaracjach typow, po slowach kluczowych extends lub implements klas ktore rozszerzamy lub interfejsow, ktore implementujemy
+
+w deklaracjach metod, przy typie zwracanym
+
 ---
 ## ElementType.TYPE_USE usages
 ### Type context in declarations
@@ -285,6 +345,14 @@ Field declaration including an enum constant
 private @TypeUse String value;
 private enum Status {@TypeUse OK, @TypeUse ERROR}
 ```
+
+???
+w deklaracjach metod przy rzucanych wyjatkach
+
+po slowie kluczowym extends w deklaracji parametru typu
+
+w deklaracjach pol, lacznie ze stalymi enuma
+
 ---
 ## ElementType.TYPE_USE usages
 ### Type context in declarations
@@ -301,6 +369,11 @@ Receiver parameter of a method (explicit **`this`** parameter)
 ```
 public void show(@TypeUse TypeContext this, boolean other)
 ```
+???
+w parametrach metod, konstruktorow i wyrazen lambda
+
+oraz w domniemanym parametrze this metody
+
 ---
 ## ElementType.TYPE_USE usages
 ### Type context in declarations
@@ -313,14 +386,16 @@ Exception parameter of a **`catch`** clause
 ```
 catch (@TypeUse NumberFormatException e)
 ```
+???
+w deklaracji zmiennej lokalnej
+
+w deklaracji wyjatku lapanego w klauzuli catch
 
 ---
 ## ElementType.TYPE_USE usages
 ### .red[Type context in declarations != Declaration context]
 
-Note that use of annotation of `ElementType.TYPE_USE` target in declarations of a field, method or
-constructor return type, formal parameter of a method and a local variable may look like use of
-annotations of declaration context: `FIELD`, `METHOD`, `CONSTRUCTOR`, `PARAMETER` and `LOCAL_VARIABLE` respectively.
+The above may look like use of annotations of declaration context: `FIELD`, `METHOD`, `CONSTRUCTOR`, `PARAMETER` and `LOCAL_VARIABLE`.
 
 .red[Don't be tricked!] These are not declaration context usages and can't be accessed by reflection. For example:
 ```
@@ -330,6 +405,13 @@ TypeContext.class.getDeclaredField("value")
         .getDeclaredAnnotation(TypeUse.class)
 ```
 returns `null`.
+
+???
+.red[Tutaj wazna uwaga:] kontekst typu uzytego w deklaracjach to cos innego niz kontekst deklaracji.
+
+Niekture uzycia adnotacji w kontekscie typu uzytego w deklaracji: pola, metody, konstruktora, parametru metody i zmiennej lokalnej
+moga wygladac jak odpowiednie uzycia adnotacji z kontekstu deklaracji. Ale to tylko zludzenie! Nie da sie do nich dostac przez refleksje.
+
 ---
 ## ElementType.TYPE_USE usages
 ### Type context in expressions
@@ -349,6 +431,13 @@ new @TypeUse Thread(new @TypeUse Runnable() {
 });
 
 ```
+???
+Teraz uzycia kontekstu typu w wyrazeniach:
+
+przy jawnym uzyciu parametru typu w wywolaniu konstruktora, metody lub przy uzyciu operatora new
+
+przy typie uzytym w tworzeniu instancji klasy, takze anonimowej
+
 ---
 ## ElementType.TYPE_USE usages
 ### Type context in expressions
@@ -365,6 +454,12 @@ String s = (@TypeUse String) "abc";
 ```
 boolean isInstance = s instanceof @TypeUse String;
 ```
+
+???
+przy typie elementu tablicy
+
+przy typie w operatorach rzutowania i instanceof
+
 ---
 ## ElementType.TYPE_USE usages
 ### Type context in expressions
@@ -385,6 +480,11 @@ int [] @TypeUse[] d; // annotates the array type int[] as component
                      // of array int[][]
 ```
 
+???
+W referencjach do metod
+
+przy typach elementow tablic na roznych poziomach w przypadku tablic wielowymiarowych
+
 ---
 ## ElementType.TYPE_USE usages
 ### Type context in expressions
@@ -395,6 +495,10 @@ List<@TypeUse Integer> integers;
 Set<? extends @TypeUse Number> set;
 Collection<? super @TypeUse Number> collection = new ArrayList<>();
 ```
+???
+
+Przy parametrach typu w typach parametryzowanych.
+
 ---
 ## .red[Quasi ElementType.TYPE_USE usages]
 
@@ -417,11 +521,29 @@ String title = /* quasi @TypeUse */ GenericClass.TITLE;
 String v = /* quasi @TypeUse */TypeContext.this.getValue();
 ```
 
+???
+Uwaga, sa tez miejsca, gdzie tylko wydaje nam sie, ze jest to uzycie typu i ze mozna tam postawic adnotacje. Sa to:
+
+uzycie adnotacji
+
+uzycie literalu class
+
+import
+
+dostep do statycznego pola czy metody
+
+okreslenia zakresu (np. dostep do metod klasy zewnetrznej w klasie wewnetrznej)
+
 ---
 layout: false
 class: center, middle, inverse
 # The Checker Framework
 ## or who is the main culprit?
+
+???
+Jak widac, jest tego duzo i mozemy teraz tak napisac kod, ze bedzie w nim wiecej adnotacji, niz samego kodu.
+
+Ale skad to sie wszystko wzielo i kto jest glownym winowajca tego calego zamieszania?
 
 ---
 layout: true
@@ -430,15 +552,34 @@ layout: true
 ---
 ## A piece of history
 
+* Rationale for JSR-308 was to allow building tools for more thorough source code analysis
 * Annotations on Java Types (JSR-308) won the Most Innovative Java SE/EE JSR of the Year award in... 2007 :)
-* Rationale for this JSR was to allow building tools for more thorough source code analysis
 * [The Checker Framework](http://types.cs.washington.edu/checker-framework/), an extendable set of compiler plugins that
   find bugs or verify their absence, was naturally the first tool to use JSR-308 specification
-* They didn't waste their time for those 7 years and the framework with a bunch of tools is already up and running:
+* The framework with a bunch of tools is already up and running:
     * **Type annotations compiler** - replacing `javac`, processing also annotations written in comments: `/* @TypeUse */`
     * **Inference tools** - automatically adding annotations to your code
     * **Annotations File Utilities** - to process `.java` and `.class` files, write annotations in a separate file etc.
+    * **IDE and build tools plugins**
 * Better late than never - .red[type annotations in Java 8] in 2014 :)
+
+???
+Troszeczke historii. Wszystko zaczelo sie dawno, dawno temu, gdy na uniwersytecie w Waszyngtonie pan doktor Ernst
+chcial rozszerzyc Jave o mozliwosc bardziej szczegolowej analizy kodu przez narzedzia do szukania bledow.
+
+Specyfikacja wygrala nagrode dla najbardziej innowacyjnego JSRa w 2007 roku :)
+
+Pierwszym narzedziem, ktory uzywal JSR-308 byl Checker Framework, rozwijany przez te same osoby, ktore specyfikowaly JSRa.
+
+Nie tracili czasu przez te 7 lat i powstal sam framework oraz komplet narzedzi, gotowych i dzialajacych:
+
+* kompilator adnotacji typu - zastepujacy standardowy kompilator javy, rozpoznajacy adnotacje typow, takze w komentarzach (da kompatybilnosci)
+
+* narzedzia automatycznego adnotowania istniejacego kodu i procesowania adnotacji w plikach .java i .class
+
+* zestaw pluginow do IDE czy Mavena
+
+wreszcie lepiej pozno niz pozniej - adnotacje typow pojawily sie w 2014 roku w Javie 8
 
 ---
 ## What do we have out of the box?
@@ -466,7 +607,14 @@ layout: true
 Each checker comes with a set of suitable annotations and an algorithm of checking constraints
 declared by them.
 
+We have also pre-annotated JDK classes and ability to annotate external libraries by file stubs.
+
 ???
+
+Co mamy dostepne w pudelku zwanym Checker Framework? Wielki zestaw wbudowanych Checkerow, kazdy definujacy wlasny zestaw adnotacji i algorytm
+sprawdzania. Mamy tez mozliwosc latwego pisania wlasnych
+
+Dostajemy rowniez preadnotowane JDK i mozliwosc wlasnorecznego adnotowania zewnetrznych bilbiotek poprzez stuby.
 
 1. Nullness Checker - null pointer errors
 1. Initialization Checker - czy wszystkie pola ustawione w konstruktorze
@@ -498,9 +646,34 @@ In the Checker Framework type annotations act as type qualifiers:
 * **`@Interned Integer`** - an `Integer` that can be safely tested for equality by reference comparison `==`
 * **`@ReadOnly List<String>`** - a read-only list of `String` objects
 
+???
+
+W Checker Framework adnotacje dzialaja jak kwalifikatory typow:
+
+typ Integer, ktory moze miec wartosc null
+
+typ Date, ktory nigdy nie bedzie miec wartosci null
+
+typ String, ktory jest wyrazeniem regularnym
+
+typ String, ktory moze zawierac niebezpieczna tresc, np. SQL injection
+
+typ String, ktory na pewno zawiera bezpieczna tresc
+
+internowany typ Integer, czyli taki, w ktorym obiekty mozna bezpieczenie porownywac przez referencje zamiast equals
+
+lista obiektow Stringow z dostepem tylko do odczytu
+
 ---
 ## Tainting Checker Type Hierarchy
 .center[![tainting](tainting.png)]
+
+???
+zobaczmy na hierarchie typow, definiowana przez Tainting Checker
+
+ooo... wielokrotne dziedziczenie w Javie :)
+
+Nie musimy adnotowac wszystkiego, bo w tym przypadku @Tainted jest wartoscia domyslna.
 
 ---
 ## Tainting Checker SQL Injection Prevention
@@ -524,6 +697,17 @@ public @Untainted String sanitize(@Tainted String tainted) {
     return new @Untainted String(tainted);
 }
 ```
+???
+
+Sprawdzimy jak mozna uzyc Tainting Checker do zapobiegania SQL injection
+
+Mamy takie miejsce w aplikacji, w ktorym niebezpiecznie jest uzywac niesprawdzonych wartosci
+
+Jest nim tutaj konstruowanie zapytania do bazy przez konkatenacje z wartoscia pobierana od uzytkownika.
+
+Trzeba to miejsce oadnotowac, ze przyjmuje tylko nieskazone Stringi jako parametr.
+
+Metoda sanitize sprawdza, czy string jest bezpieczny i jesli tak, to zwraca String oznaczony jako nieskazony.
 
 ---
 ## Tainting Checker SQL Injection Prevention
@@ -541,6 +725,12 @@ public String getVulnerableQuery(@Tainted String lastName) {
     return createQuery(lastName);
 }
 ```
+
+???
+
+Prawidlowe, bezpieczne uzycie wartosci przekazanej przez uzytkownika polega na jej sprawdzeniu przed przekazaniem do wrazliwego kodu.
+
+Dziura bezpieczenstwa polega na bezposrednim uzyciu wartosci bez uzycia metody sanitize.
 
 ---
 ## Tainting Checker SQL Injection Prevention
@@ -563,6 +753,11 @@ However Tainting Checker **finds a security hole**:
 
 **Et voilà!**
 
+???
+
+Kompilator oczywiscie nie zglasza zadnych problemow, ale juz Tainting Checker z Checker Framework stwierdza,
+ze uzyty zostal skazony String, a oczekiwano nieskazonego.
+
 ---
 layout: false
 class: inverse
@@ -576,6 +771,9 @@ http://docs.oracle.com/javase/specs/jls/se8/html/jls-9.html#jls-9.6.4.1
 http://types.cs.washington.edu/checker-framework/
 ### Source code of this presentation
 https://github.com/danielstankiewicz/type-annotations
+
+???
+Jeszcze garsc linkow, jakies pytania?
 
 ---
 layout: false
