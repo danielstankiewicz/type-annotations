@@ -76,6 +76,9 @@
       .green {
         color: #1FAB3B;
       }
+      img[alt=tainting] {
+        width: 60%;
+      }
 
     </style>
   </head>
@@ -237,15 +240,15 @@ Additionally it introduces *type context*, where annotations apply to **types us
 
 Type parameter of generic class (or interface)
 ```
-public class GenericClass<@TypeParameter("class") V extends Number>
+public class GenericClass<@TypeParameter V extends Number>
 ```
 Type parameter of generic constructor
 ```
-public <@TypeParameter("constructor") A> GenericClass(V value, A another)
+public <@TypeParameter A> GenericClass(V value, A another)
 ```
 Type parameter of generic method
 ```
-public <@TypeParameter("method") K> Map<K, V> getSingletonMap(K key)
+public <@TypeParameter K> Map<K, V> getSingletonMap(K key)
 ```
 
 ---
@@ -266,19 +269,14 @@ TypeParameter annotation =
 ### Declaration context
 ```
 @TypeUse("class")
-public class DeclarationContext<@TypeUse("type parameter") V extends Number> {
-    public <@TypeUse("type parameter") K> Map<K, V> getSingletonMap(K key) {
-        return Collections.singletonMap(key, this.value);
-    }
+public class DeclarationContext
+                <@TypeUse("type parameter") V extends Number> {
 
-    @TypeUse("annotation")
-    public @interface AnnotationExample {}
+    public <@TypeUse("type parameter") K> Map<K, V> getMap(K key) {}
 
-    @TypeUse("interface")
-    public interface InterfaceExample {}
-
-    @TypeUse("enum")
-    public enum EnumExample {}
+    @TypeUse("annotation") public @interface AnnotationExample {}
+    @TypeUse("interface") public interface InterfaceExample {}
+    @TypeUse("enum") public enum EnumExample {}
 }
 ```
 Usages of `ElementType.TYPE_USE` in declaration contexts can be easily accessed by reflection.
@@ -286,15 +284,15 @@ Usages of `ElementType.TYPE_USE` in declaration contexts can be easily accessed 
 ## ElementType.TYPE_USE usages
 ### Type context in declarations
 
-A type in the extends or implements clause of a class declaration
+**`extends`** or **`implements`** clause of a class declaration
 ```
 public class TypeContext implements @TypeUse Serializable
 ```
-A type in the extends clause of an interface declaration
+**`extends`** clause of an interface declaration
 ```
 public interface InterfaceExample extends @TypeUse Runnable
 ```
-The return type of a method (including the type of an element of an annotation type)
+Return type of a method
 ```
 public @TypeUse String getValue()
 ```
@@ -302,15 +300,15 @@ public @TypeUse String getValue()
 ## ElementType.TYPE_USE usages
 ### Type context in declarations
 
-A type in the throws clause of a method or constructor
+**`throws`** clause of a method or constructor
 ```
 public void throwException() throws @TypeUse Exception
 ```
-A type in the extends clause of a type parameter declaration of a generic class, interface, method, or constructor
+**`extends`** clause of a type parameter declaration
 ```
 public <N extends @TypeUse Number> Integer getInteger(N number)
 ```
-The type in a field declaration of a class or interface (including an enum constant)
+Field declaration including an enum constant
 ```
 private @TypeUse String value;
 private enum Status {@TypeUse OK, @TypeUse ERROR}
@@ -319,7 +317,7 @@ private enum Status {@TypeUse OK, @TypeUse ERROR}
 ## ElementType.TYPE_USE usages
 ### Type context in declarations
 
-The type in a formal parameter declaration of a method, constructor, or lambda expression
+Formal parameter of a method, constructor, or lambda expression
 ```
 public List<Car> filterCars(@TypeUse List<Car> cars, int year) {
     return cars.stream()
@@ -327,7 +325,7 @@ public List<Car> filterCars(@TypeUse List<Car> cars, int year) {
             .collect(Collectors.toList());
 }
 ```
-The type of the receiver parameter of a method
+Receiver parameter of a method (explicit **`this`** parameter)
 ```
 public void show(@TypeUse TypeContext this, boolean other)
 ```
@@ -335,11 +333,11 @@ public void show(@TypeUse TypeContext this, boolean other)
 ## ElementType.TYPE_USE usages
 ### Type context in declarations
 
-The type in a local variable declaration
+Local variable declaration
 ```
 @TypeUse Date date;
 ```
-The type in an exception parameter declaration
+Exception parameter of a **`catch`** clause
 ```
 catch (@TypeUse NumberFormatException e)
 ```
@@ -354,22 +352,24 @@ annotations of declaration context: `FIELD`, `METHOD`, `CONSTRUCTOR`, `PARAMETER
 
 .red[Don't be tricked!] These are not declaration context usages and can't be accessed by reflection. For example:
 ```
+private @TypeUse String value;
+
 TypeContext.class.getDeclaredField("value")
         .getDeclaredAnnotation(TypeUse.class)
 ```
-returns `null` in case field is declared as `private @TypeUse String value;`
+returns `null`.
 ---
 ## ElementType.TYPE_USE usages
 ### Type context in expressions
 
-A type in the explicit type argument list to an explicit constructor invocation statement or class instance creation expression or method invocation expression
+Explicit type parameter of a constructor or method invocation or **`new`** operator
 ```
 <@TypeUse Long>this(0l);
 new <@TypeUse String> GenericClass<@TypeUse Long>(123l, "abc")
         .<@TypeUse Integer> getSingletonMap(123);
 
 ```
-In an unqualified class instance creation expression, as the class type to be instantiated or as the direct superclass or direct superinterface of an anonymous class to be instantiated
+Class instance creation (including anonymous)
 ```
 new @TypeUse Thread(new @TypeUse Runnable() {
     @Override
@@ -381,15 +381,15 @@ new @TypeUse Thread(new @TypeUse Runnable() {
 ## ElementType.TYPE_USE usages
 ### Type context in expressions
 
-The element type in an array creation expression
+Type of element in array creation
 ```
 Integer[] array = new Integer @TypeUse[] {};
 ```
-The type in the cast operator of a cast expression
+Cast operator
 ```
 String s = (@TypeUse String) "abc";
 ```
-The type that follows the `instanceof` relational operator
+**`instanceof`** operator
 ```
 boolean isInstance = s instanceof @TypeUse String;
 ```
@@ -397,14 +397,14 @@ boolean isInstance = s instanceof @TypeUse String;
 ## ElementType.TYPE_USE usages
 ### Type context in expressions
 
-In a method reference expression, as the reference type to search for a member method or as the class type or array type to construct
+Method reference expression
 ```
 @TypeUse GenericClass::new
 List<@TypeUse String>::size
 Arrays::<@TypeUse Integer> sort
 ```
 
-The element type of an array type
+Element type of an array
 ```
 @TypeUse int[] a;    // annotates the primitive type int
 int @TypeUse[] b;    // annotates the array type int[]
@@ -417,7 +417,7 @@ int [] @TypeUse[] d; // annotates the array type int[] as component
 ## ElementType.TYPE_USE usages
 ### Type context in expressions
 
-A non-wildcard type argument, or a bound of a wildcard type argument, of a parameterized type
+Type argument of a parametrized type
 ```
 List<@TypeUse Integer> integers;
 Set<? extends @TypeUse Number> set;
@@ -469,7 +469,7 @@ layout: true
 * Better late than never - .red[type annotations in Java 8] in 2014 :)
 
 ---
-## What we have out of the box?
+## What do we have out of the box?
 .pull-left[
 * Nullness Checker
 * Initialization Checker
@@ -491,7 +491,8 @@ layout: true
 * Subtyping Checker
 ]
 
-Let's prevent an SQL-injection by using **Tainting Checker**!
+Each checker comes with a set of suitable annotations and an algorithm of checking constraints
+declared by them.
 
 ???
 
@@ -513,13 +514,102 @@ Let's prevent an SQL-injection by using **Tainting Checker**!
 1. Subtyping Checker - kwalifikatory typu
 
 ---
-## Tainting Checker
+## Annotations as Type Qualifiers
+
+In the Checker Framework type annotations act as type qualifiers:
+
+* **`@Nullable Integer`** - an `Integer` that may become `null`
+* **`@NonNull Date`** - a `Date` that will never become `null`
+* **`@Regex String`** - a `String` that is a valid regular expression
+* **`@Tainted String`** - a `String` that may contain dangerous content
+* **`@Untainted String`** - a `String` that has been checked and is safe to be used
+* **`@Interned Integer`** - an `Integer` that can be safely tested for equality by reference comparison `==`
+* **`@ReadOnly List<String>`** - a read-only list of `String` objects
+
+---
+## Tainting Checker Type Hierarchy
+.center[![tainting](tainting.png)]
+
+---
+## Tainting Checker SQL Injection Prevention
+
+Security sink in an application, it should allow only untainted values:
+```
+public String createQuery(@Untainted String lastName) {
+    return "SELECT p.id FROM person p " +
+            "WHERE p.last_name = " + lastName;
+}
+```
+Method to sanitize values entered from the outside:
+```
+public @Untainted String sanitize(@Tainted String tainted) {
+    for (char c : tainted.toCharArray()) {
+        if (!Character.isLetterOrDigit(c)
+            && !Character.isWhitespace(c)) {
+            throw new IllegalArgumentException("SQL Injection!");
+        }
+    }
+    return new @Untainted String(tainted);
+}
+```
+
+---
+## Tainting Checker SQL Injection Prevention
+
+Proper, safe use of security sink:
+```
+public String getSafeQuery(@Tainted String lastName) {
+    return createQuery(sanitize(lastName));
+}
+```
+Vulnerability in code:
+```
+public String getVulnerableQuery(@Tainted String lastName) {
+    // use of a @Tainted String without sanitizing
+    return createQuery(lastName);
+}
+```
+
+---
+## Tainting Checker SQL Injection Prevention
+Compiler doesn't warn, despite the vulnerability in code.
+
+However Tainting Checker **finds a security hole**:
+```no-highlight
+[INFO] --- checkerframework-maven-plugin:1.8.0:check (default)
+    @ java8-type-annotations ---
+[INFO] Running Checker Framework version: 1.8.0
+[INFO] Running processor(s):
+    org.checkerframework.checker.tainting.TaintingChecker
+[INFO] Run with debug logging in order to view the compiler command line
+[WARNING] ...src\main\java\pl\jug\warszawa\typeannotations\checker\
+    TaintingExample.java:[31,27]
+    [argument.type.incompatible] incompatible types in argument.
+  found   : @Tainted String
+  required: @Untainted String
+```
+
+**Et voilà!**
+
+---
+layout: false
+class: inverse
+# Links
+
+### JSR-308 Specification
+http://types.cs.washington.edu/jsr308/specification/java-annotation-design.html
+### Java 8 Language Specification - 9.6.4.1. `@Target`
+http://docs.oracle.com/javase/specs/jls/se8/html/jls-9.html#jls-9.6.4.1
+### The Checker Framework
+http://types.cs.washington.edu/checker-framework/
+### Source code of this presentation
+https://github.com/danielstankiewicz/type-annotations
 
 ---
 layout: false
 class: center, middle, inverse
 
-# That's all folks!
+# The End
 
 Slideshow created with [remark](http://gnab.github.com/remark).
 
