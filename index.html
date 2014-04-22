@@ -532,11 +532,8 @@ layout: true
 * Rationale for JSR-308 was to allow building tools for more thorough source code analysis
 * The Most Innovative Java SE/EE JSR of the Year award in... 2007 :)
 * [The Checker Framework](http://types.cs.washington.edu/checker-framework/), an extendable set of compiler plugins that
-  find bugs, has been already up and running much before Java 8 with a bunch of tools:
-    * **Type annotations compiler** - replacing `javac`, processing also annotations written in comments: `/* @TypeUse */`
-    * **Inference tools** - automatically adding annotations to your code
-    * **Annotations File Utilities** - to process `.java` and `.class` files, write annotations in a separate file etc.
-    * **IDE and build tools plugins**
+  find bugs, has been already up and running much before Java 8 with a bunch of other tools
+* Until Java 8, Checker Framework's own compiler had to be used to process type annotations, also written in comments: `/* @TypeUse */`
 * Better late than never - .red[type annotations in Java 8] in 2014 :)
 
 ???
@@ -544,15 +541,10 @@ Uzasadnieniem dla JSR-308 byla mozliwosc bardziej szczegolowej analizy kodu prze
 
 Specyfikacja wygrala nagrode dla najbardziej innowacyjnego JSRa w 2007 roku :)
 
-Pierwszym narzedziem, ktory uzywal JSR-308 byl Checker Framework, rozwijany przez te same osoby, ktore specyfikowaly JSRa.
+Pierwszym narzedziem, ktory uzywal JSR-308 byl Checker Framework, zestaw pluginow do szukania powtarzalnych bugow,
+rozwijany przez te same osoby, ktore specyfikowaly JSRa.
 
-Nie tracili czasu przez te 7 lat i powstal sam framework oraz komplet narzedzi, gotowych i dzialajacych:
-
-* kompilator adnotacji typu - zastepujacy standardowy kompilator javy, rozpoznajacy adnotacje typow, takze w komentarzach (da kompatybilnosci)
-
-* narzedzia automatycznego adnotowania istniejacego kodu i procesowania adnotacji w plikach .java i .class
-
-* zestaw pluginow do IDE czy Mavena
+Nie tracili czasu, framework dziala juz od dawna, trzeba jedynie uzywac ich kompilatora, ktory procesuje adnotacje, takze w komentarzach.
 
 wreszcie lepiej pozno niz pozniej - adnotacje typow pojawily sie w 2014 roku w Javie 8
 
